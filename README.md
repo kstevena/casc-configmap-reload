@@ -1,9 +1,9 @@
 # Kubernetes ConfigMap Reload
 
-[![license](https://img.shields.io/github/license/jimmidyson/configmap-reload.svg?maxAge=2592000)](https://github.com/kstevena/casc-configmap-reload)
-[![Docker Stars](https://img.shields.io/docker/stars/jimmidyson/configmap-reload.svg?maxAge=2592000)](https://hub.docker.com/r/kstevena/casc-configmap-reload/)
-[![Docker Pulls](https://img.shields.io/docker/pulls/jimmidyson/configmap-reload.svg?maxAge=2592000)](https://hub.docker.com/r/kstevena/casc-configmap-reload/)
-[![CircleCI](https://img.shields.io/circleci/project/jimmidyson/configmap-reload.svg?maxAge=2592000)](https://circleci.com/gh/kstevena/casc-configmap-reload)
+[![license](https://img.shields.io/github/license/kstevena/casc-configmap-reload.svg?maxAge=2592000)](https://github.com/kstevena/casc-configmap-reload)
+[![Docker Stars](https://img.shields.io/docker/stars/kstevena/casc-configmap-reload.svg?maxAge=2592000)](https://hub.docker.com/r/kstevena/casc-configmap-reload/)
+[![Docker Pulls](https://img.shields.io/docker/pulls/kstevena/casc-configmap-reload.svg?maxAge=2592000)](https://hub.docker.com/r/kstevena/casc-configmap-reload/)
+[![CircleCI](https://img.shields.io/circleci/project/kstevena/casc-configmap-reload.svg?maxAge=2592000)](https://circleci.com/gh/kstevena/casc-configmap-reload)
 
 **casc-configmap-reload** is a simple binary to trigger a reload of the Configuration-as-Code Jenkins plugin configuration when Kubernetes ConfigMaps are updated.
 It watches mounted volume dirs and notifies the target process that the config map has been changed.
