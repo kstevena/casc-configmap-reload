@@ -7,14 +7,18 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"encoding/json"
 
 	fsnotify "gopkg.in/fsnotify.v1"
 )
 
 var volumeDirs volumeDirsFlag
-var webhook = flag.String("webhook-url", "", "the url to send a request to when the specified config map volume directory has been updated")
-var webhookMethod = flag.String("webhook-method", "POST", "the HTTP method url to use to send the webhook")
 var webhookStatusCode = flag.Int("webhook-status-code", 200, "the HTTP status code indicating successful triggering of reload")
+var jenkins = flag.String("jenkins-url", "", "the jenkins url")
+var username = flag.String("username", "", "the jenkins username")
+var password = flag.String("password", "", "the jenkins password")
+var crumbIssuerPath = "crumbIssuer/api/json"
+var cascReload = "configuration-as-code/reload"
 
 func main() {
 	flag.Var(&volumeDirs, "volume-dir", "the config map volume directory to watch for updates; may be used multiple times")
@@ -26,8 +30,20 @@ func main() {
 		flag.Usage()
 		os.Exit(1)
 	}
-	if *webhook == "" {
-		log.Println("Missing webhook")
+	if *jenkins == "" {
+		log.Println("Missing jenkins")
+		log.Println()
+		flag.Usage()
+		os.Exit(1)
+	}
+	if *username == "" {
+		log.Println("Missing username")
+		log.Println()
+		flag.Usage()
+		os.Exit(1)
+	}
+	if *password == "" {
+		log.Println("Missing password")
 		log.Println()
 		flag.Usage()
 		os.Exit(1)
@@ -47,7 +63,8 @@ func main() {
 				if event.Op&fsnotify.Create == fsnotify.Create {
 					if filepath.Base(event.Name) == "..data" {
 						log.Println("config map updated")
-						req, err := http.NewRequest(*webhookMethod, *webhook, nil)
+						req, err := http.NewRequest("GET", *jenkins + crumbIssuerPath, nil)
+						req.SetBasicAuth(*username, *password)
 						if err != nil {
 							log.Println("error:", err)
 							continue
@@ -57,7 +74,23 @@ func main() {
 							log.Println("error:", err)
 							continue
 						}
+						crumbData := map[string]string{}
+						json.NewDecoder(resp.Body).Decode(&crumbData)
 						resp.Body.Close()
+
+						req, err = http.NewRequest("POST", *jenkins + cascReload, nil)
+						req.SetBasicAuth(*username, *password)
+						req.Header.Add(crumbData["crumbRequestField"], crumbData["crumb"])
+						if err != nil {
+							log.Println("error:", err)
+							continue
+						}
+						resp, err = http.DefaultClient.Do(req)
+						if err != nil {
+							log.Println("error:", err)
+							continue
+						}
+
 						if resp.StatusCode != *webhookStatusCode {
 							log.Println("error:", "Received response code", resp.StatusCode, ", expected", *webhookStatusCode)
 							continue
