@@ -130,7 +130,7 @@ jobs:
       - run:
           name: Push Docker image
           command: |
-            if [ "${CIRCLE_PROJECT_USERNAME}" != "jimmidyson" ]; then
+            if [ "${CIRCLE_PROJECT_USERNAME}" != "kstevena" ]; then
               echo "Skipping - this is not in origin repository"
               exit 0
             fi
